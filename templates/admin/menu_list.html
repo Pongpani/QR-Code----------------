@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}จัดการเมนูอาหาร{% endblock %}
+{% block content %}
+<div class="toolbar">
+    <h2>รายการเมนูอาหาร</h2>
+    <a class="btn primary" href="{{ url_for('admin_menu_new') }}">เพิ่มเมนูใหม่</a>
+</div>
+{% if menu_items %}
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>ชื่อเมนู</th>
+            <th>หมวดหมู่</th>
+            <th>ราคา (บาท)</th>
+            <th>สถานะ</th>
+            <th class="actions">การจัดการ</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in menu_items %}
+        <tr>
+            <td>{{ item.name }}</td>
+            <td>{{ item.category or '-' }}</td>
+            <td>{{ '%.2f'|format(item.price) }}</td>
+            <td>{% if item.available %}<span class="badge success">พร้อมขาย</span>{% else %}<span class="badge muted">ปิดขาย</span>{% endif %}</td>
+            <td class="actions">
+                <a class="btn" href="{{ url_for('admin_menu_edit', item_id=item.id) }}">แก้ไข</a>
+                <form method="post" action="{{ url_for('admin_menu_delete', item_id=item.id) }}" onsubmit="return confirm('ยืนยันการลบเมนูนี้หรือไม่?');">
+                    <button class="btn danger" type="submit">ลบ</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>ยังไม่มีข้อมูลเมนู</p>
+{% endif %}
+{% endblock %}

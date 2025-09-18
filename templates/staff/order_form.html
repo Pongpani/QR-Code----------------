@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}สร้างออเดอร์ใหม่{% endblock %}
+{% block content %}
+<h2>สร้างออเดอร์ใหม่</h2>
+<form method="post" class="form-grid">
+    <label for="table_id">เลือกโต๊ะ</label>
+    <select id="table_id" name="table_id" required>
+        <option value="">-- เลือกโต๊ะ --</option>
+        {% for table in tables %}
+        <option value="{{ table.id }}">{{ table.name }} ({{ table.code }})</option>
+        {% endfor %}
+    </select>
+
+    <fieldset class="menu-selector">
+        <legend>เลือกเมนู</legend>
+        {% for item in menu_items %}
+        <div class="menu-item">
+            <div>
+                <strong>{{ item.name }}</strong>
+                <span class="price">{{ '%.2f'|format(item.price) }} บาท</span>
+                {% if item.description %}<p class="description">{{ item.description }}</p>{% endif %}
+            </div>
+            <input type="number" min="0" value="0" name="item_{{ item.id }}">
+        </div>
+        {% else %}
+        <p>ยังไม่มีเมนูที่พร้อมขาย</p>
+        {% endfor %}
+    </fieldset>
+
+    <button type="submit" class="btn primary">บันทึกออเดอร์</button>
+</form>
+{% endblock %}

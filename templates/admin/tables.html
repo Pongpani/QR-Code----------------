@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}จัดการโต๊ะและ QR{% endblock %}
+{% block content %}
+<div class="grid two-columns">
+    <section class="card">
+        <h2>เพิ่มโต๊ะใหม่</h2>
+        <form method="post" class="form-grid">
+            <label for="name">ชื่อโต๊ะ</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="code">รหัสโต๊ะ (ใช้ใน QR)</label>
+            <input type="text" id="code" name="code" required>
+
+            <button type="submit" class="btn primary">บันทึกโต๊ะ</button>
+        </form>
+    </section>
+    <section class="card">
+        <h2>รายการโต๊ะ</h2>
+        {% if tables %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ชื่อโต๊ะ</th>
+                    <th>รหัส</th>
+                    <th>QR Code</th>
+                    <th class="actions">การจัดการ</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for table in tables %}
+                <tr>
+                    <td>{{ table.name }}</td>
+                    <td>{{ table.code }}</td>
+                    <td><a class="btn" href="{{ url_for('admin_table_qr', table_id=table.id) }}">ดาวน์โหลด</a></td>
+                    <td class="actions">
+                        <form method="post" action="{{ url_for('admin_table_delete', table_id=table.id) }}" onsubmit="return confirm('ยืนยันการลบโต๊ะนี้หรือไม่?');">
+                            <button class="btn danger" type="submit">ลบ</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>ยังไม่มีข้อมูลโต๊ะ</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

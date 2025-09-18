@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}จัดการออเดอร์{% endblock %}
+{% block content %}
+<div class="toolbar">
+    <h2>ออเดอร์ทั้งหมด</h2>
+    <a class="btn primary" href="{{ url_for('staff_new_order') }}">สร้างออเดอร์สำหรับลูกค้า</a>
+</div>
+{% if orders %}
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>หมายเลข</th>
+            <th>โต๊ะ</th>
+            <th>สถานะ</th>
+            <th>ยอดรวม (บาท)</th>
+            <th>เรียกพนักงาน</th>
+            <th>อัปเดตล่าสุด</th>
+            <th class="actions">การจัดการ</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+        <tr class="{% if order.requested_assistance %}highlight{% endif %}">
+            <td>#{{ order.id }}</td>
+            <td>{{ order.table.name }} ({{ order.table.code }})</td>
+            <td>{{ order.status }}</td>
+            <td>{{ '%.2f'|format(order.total_amount) }}</td>
+            <td>
+                {% if order.requested_assistance %}
+                    <span class="badge warning">ต้องการพนักงาน</span>
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+            <td>{{ order.updated_at.strftime('%d/%m/%Y %H:%M') }}</td>
+            <td class="actions">
+                <a class="btn" href="{{ url_for('staff_order_detail', order_id=order.id) }}">รายละเอียด</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>ยังไม่มีออเดอร์</p>
+{% endif %}
+
+<h3>ลิงก์หน้าเมนูสำหรับลูกค้า</h3>
+<ul class="table-links">
+    {% for table in tables %}
+    <li><a href="{{ url_for('table_view', code=table.code) }}" target="_blank">{{ table.name }} ({{ table.code }})</a></li>
+    {% endfor %}
+</ul>
+{% endblock %}

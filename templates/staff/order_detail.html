@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}รายละเอียดออเดอร์ #{{ order.id }}{% endblock %}
+{% block content %}
+<div class="toolbar">
+    <h2>ออเดอร์ #{{ order.id }} - {{ order.table.name }} ({{ order.table.code }})</h2>
+    <a class="btn" href="{{ url_for('staff_dashboard') }}">ย้อนกลับ</a>
+</div>
+
+<div class="grid two-columns">
+    <section class="card">
+        <h3>รายการอาหาร</h3>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>เมนู</th>
+                    <th>จำนวน</th>
+                    <th>ราคา/หน่วย</th>
+                    <th>รวม</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order.items %}
+                <tr>
+                    <td>{{ item.menu_item.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ '%.2f'|format(item.price) }}</td>
+                    <td>{{ '%.2f'|format(item.subtotal) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <p class="total">ยอดรวมทั้งหมด: <strong>{{ '%.2f'|format(order.total_amount) }} บาท</strong></p>
+        <p>สถานะปัจจุบัน: <strong>{{ order.status }}</strong></p>
+        <p>สร้างเมื่อ: {{ order.created_at.strftime('%d/%m/%Y %H:%M') }}</p>
+        {% if order.created_by %}<p>สร้างโดย: {{ order.created_by.username }}</p>{% endif %}
+        {% if order.payment_method %}<p>วิธีชำระเงิน: {{ order.payment_method }}</p>{% endif %}
+    </section>
+
+    <section class="card">
+        <h3>อัปเดตสถานะ</h3>
+        <form method="post" action="{{ url_for('staff_update_status', order_id=order.id) }}" class="form-grid">
+            <label for="status">สถานะออเดอร์</label>
+            <select id="status" name="status">
+                {% for status_option in STATUS_FLOW %}
+                <option value="{{ status_option }}" {% if order.status == status_option %}selected{% endif %}>{{ status_option }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="payment_method">วิธีชำระเงิน (กรอกเมื่อปิดออเดอร์)</label>
+            <input type="text" id="payment_method" name="payment_method" value="{{ order.payment_method or '' }}" placeholder="เงินสด / QR / บัตรเครดิต">
+
+            <button type="submit" class="btn primary">บันทึกสถานะ</button>
+        </form>
+
+        {% if order.requested_assistance %}
+        <form method="post" action="{{ url_for('staff_acknowledge', order_id=order.id) }}">
+            <button class="btn" type="submit">ยืนยันว่าพนักงานได้รับทราบแล้ว</button>
+        </form>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

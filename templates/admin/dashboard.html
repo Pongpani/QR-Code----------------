@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}แดชบอร์ดผู้ดูแล{% endblock %}
+{% block content %}
+<h2>ภาพรวมการขาย</h2>
+<div class="grid stats">
+    <div class="card">
+        <h3>ยอดขายรวมทั้งหมด</h3>
+        <p class="value">{{ '%.2f'|format(total_sales) }} บาท</p>
+    </div>
+    <div class="card">
+        <h3>ยอดขายวันนี้</h3>
+        <p class="value">{{ '%.2f'|format(today_sales) }} บาท</p>
+    </div>
+</div>
+
+<h3>ออเดอร์ที่กำลังดำเนินการ</h3>
+{% if open_orders %}
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>หมายเลข</th>
+            <th>โต๊ะ</th>
+            <th>สถานะ</th>
+            <th>ยอดรวม (บาท)</th>
+            <th>เรียกพนักงาน</th>
+            <th>อัปเดตล่าสุด</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in open_orders %}
+        <tr>
+            <td>#{{ order.id }}</td>
+            <td>{{ order.table.name }} ({{ order.table.code }})</td>
+            <td>{{ order.status }}</td>
+            <td>{{ '%.2f'|format(order.total_amount) }}</td>
+            <td>{% if order.requested_assistance %}<span class="badge warning">ต้องการพนักงาน</span>{% else %}-{% endif %}</td>
+            <td>{{ order.updated_at.strftime('%d/%m/%Y %H:%M') }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>ยังไม่มีออเดอร์ที่กำลังดำเนินการ</p>
+{% endif %}
+{% endblock %}

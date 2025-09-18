@@ -1,0 +1,370 @@
+:root {
+    --primary: #ff7043;
+    --secondary: #37474f;
+    --background: #f5f5f5;
+    --card-bg: #ffffff;
+    --text: #263238;
+    --success: #43a047;
+    --warning: #ffa000;
+    --danger: #e53935;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Prompt', 'Sarabun', sans-serif;
+    margin: 0;
+    background: var(--background);
+    color: var(--text);
+}
+
+a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+.app-header {
+    background: var(--secondary);
+    color: #fff;
+}
+
+.app-header .brand {
+    margin: 0;
+}
+
+.app-header nav ul {
+    list-style: none;
+    display: flex;
+    gap: 1rem;
+    padding: 0;
+}
+
+.app-header nav a {
+    color: #fff;
+    font-weight: 600;
+}
+
+.app-footer {
+    background: var(--secondary);
+    color: #fff;
+    text-align: center;
+    padding: 1rem 0;
+    margin-top: 2rem;
+}
+
+.flash-messages {
+    margin-bottom: 1rem;
+}
+
+.flash {
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+}
+
+.flash.success { background: #e8f5e9; color: var(--success); }
+.flash.info { background: #e3f2fd; color: #1565c0; }
+.flash.warning { background: #fff3e0; color: var(--warning); }
+.flash.danger { background: #ffebee; color: var(--danger); }
+
+.btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: none;
+    background: #eceff1;
+    color: var(--secondary);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn.small {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.85rem;
+}
+
+.btn.primary {
+    background: var(--primary);
+    color: #fff;
+}
+
+.btn.danger {
+    background: var(--danger);
+    color: #fff;
+}
+
+.btn:hover {
+    opacity: 0.9;
+    text-decoration: none;
+}
+
+.auth-card {
+    max-width: 420px;
+    margin: 3rem auto;
+    padding: 2rem;
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+}
+
+.auth-card h2 {
+    margin-top: 0;
+}
+
+.auth-card label {
+    display: block;
+    margin-top: 1rem;
+}
+
+.auth-card input {
+    width: 100%;
+    padding: 0.6rem;
+    margin-top: 0.3rem;
+    border-radius: 6px;
+    border: 1px solid #cfd8dc;
+}
+
+.help-text {
+    font-size: 0.9rem;
+    color: #607d8b;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.data-table th,
+.data-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #eceff1;
+    text-align: left;
+}
+
+.data-table thead {
+    background: #eceff1;
+}
+
+.data-table tr:last-child td {
+    border-bottom: none;
+}
+
+.data-table tr.highlight {
+    background: #fff8e1;
+}
+
+.data-table .actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.form-grid {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.form-grid input,
+.form-grid select,
+.form-grid textarea {
+    padding: 0.6rem;
+    border-radius: 6px;
+    border: 1px solid #cfd8dc;
+}
+
+.form-grid textarea {
+    resize: vertical;
+}
+
+.form-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.grid.stats {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.grid.two-columns {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.card {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.card h3 {
+    margin-top: 0;
+}
+
+.value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.badge.success { background: #e8f5e9; color: var(--success); }
+.badge.warning { background: #fff3cd; color: #ad6800; }
+.badge.muted { background: #eceff1; color: #607d8b; }
+
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 1rem;
+}
+
+.table-links {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.table-links li {
+    background: var(--card-bg);
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.menu-selector {
+    border: 1px solid #eceff1;
+    border-radius: 12px;
+    padding: 1rem;
+    background: #fafafa;
+}
+
+.menu-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #eceff1;
+}
+
+.menu-item:last-child {
+    border-bottom: none;
+}
+
+.menu-item input {
+    width: 80px;
+    padding: 0.4rem;
+}
+
+.customer-menu .menu-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.menu-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    background: var(--card-bg);
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.menu-card .menu-info h3 {
+    margin: 0;
+}
+
+.menu-card .description {
+    color: #607d8b;
+    margin-bottom: 0;
+}
+
+.menu-card .menu-action input {
+    width: 70px;
+    padding: 0.4rem;
+}
+
+.order-history {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+}
+
+.order-history li {
+    background: var(--card-bg);
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.total {
+    font-weight: 600;
+}
+
+.success {
+    color: var(--success);
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .app-header nav ul {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .menu-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .menu-card .menu-action {
+        width: 100%;
+    }
+}
