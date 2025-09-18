@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}สั่งอาหาร - {{ table.name }}{% endblock %}
+{% block content %}
+<h2>โต๊ะ {{ table.name }} ({{ table.code }})</h2>
+<p>เลือกเมนูที่ต้องการ แล้วกดปุ่มส่งออเดอร์เพื่อแจ้งพนักงาน</p>
+<form method="post" class="customer-menu">
+    <div class="menu-list">
+        {% for item in menu_items %}
+        <div class="menu-card">
+            <div class="menu-info">
+                <h3>{{ item.name }}</h3>
+                <p class="price">{{ '%.2f'|format(item.price) }} บาท</p>
+                {% if item.description %}<p class="description">{{ item.description }}</p>{% endif %}
+            </div>
+            <div class="menu-action">
+                <label>จำนวน</label>
+                <input type="number" min="0" value="0" name="item_{{ item.id }}">
+            </div>
+        </div>
+        {% else %}
+        <p>ขณะนี้ยังไม่มีเมนูพร้อมขาย</p>
+        {% endfor %}
+    </div>
+    <button class="btn primary" type="submit">ส่งออเดอร์</button>
+</form>
+
+{% if active_orders %}
+<h3>ออเดอร์ที่ทำรายการไว้</h3>
+<ul class="order-history">
+    {% for order in active_orders %}
+    <li>
+        <strong>ออเดอร์ #{{ order.id }}</strong> - สถานะ: {{ order.status }} - ยอดรวม {{ '%.2f'|format(order.total_amount) }} บาท
+        <a class="btn small" href="{{ url_for('customer_order_summary', code=table.code, order_id=order.id) }}">ดูรายละเอียด</a>
+        {% if order.requested_assistance %}<span class="badge warning">กำลังเรียกพนักงาน</span>{% endif %}
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

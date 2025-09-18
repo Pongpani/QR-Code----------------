@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}เข้าสู่ระบบ - QR Ordering{% endblock %}
+{% block content %}
+<div class="auth-card">
+    <h2>เข้าสู่ระบบ</h2>
+    <form method="post">
+        <label for="username">ชื่อผู้ใช้</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="password">รหัสผ่าน</label>
+        <input type="password" id="password" name="password" required>
+
+        <button type="submit" class="btn primary">เข้าสู่ระบบ</button>
+    </form>
+    <p class="help-text">บัญชีตัวอย่าง: admin/admin123 หรือ staff/staff123</p>
+</div>
+{% endblock %}
