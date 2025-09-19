@@ -4,9 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}QR Ordering{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body>
+<body class="{% block body_class %}app-body{% endblock %}">
     <header class="app-header">
         <div class="container">
             <h1 class="brand">ระบบสั่งอาหารผ่าน QR Code</h1>
@@ -45,5 +50,6 @@
     <footer class="app-footer">
         <div class="container">&copy; {{ current_year|default(2024) }} QR Ordering System</div>
     </footer>
+    {% block scripts %}{% endblock %}
 </body>
 </html>

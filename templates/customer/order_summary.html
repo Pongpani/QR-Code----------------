@@ -1,47 +1,69 @@
 {% extends 'base.html' %}
 {% block title %}ออเดอร์ #{{ order.id }} - {{ table.name }}{% endblock %}
+{% block body_class %}app-body customer-view{% endblock %}
 {% block content %}
-<div class="toolbar">
-    <h2>ออเดอร์ #{{ order.id }}</h2>
+<section class="order-summary-hero">
+    <div>
+        <span class="table-chip">โต๊ะ {{ table.name }} • {{ table.code }}</span>
+        <h2>ออเดอร์ #{{ order.id }}</h2>
+        <p class="order-status-text">สถานะปัจจุบัน <span class="status-pill status-{{ order.status }}">{{ order.status }}</span></p>
+    </div>
     <a class="btn" href="{{ url_for('table_view', code=table.code) }}">ย้อนกลับไปเลือกเมนู</a>
-</div>
+</section>
 
-<section class="card">
-    <h3>สถานะออเดอร์: {{ order.status }}</h3>
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>เมนู</th>
-                <th>จำนวน</th>
-                <th>ราคา/หน่วย</th>
-                <th>รวม</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in order.items %}
-            <tr>
-                <td>{{ item.menu_item.name }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>{{ '%.2f'|format(item.price) }}</td>
-                <td>{{ '%.2f'|format(item.subtotal) }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <p class="total">ยอดรวมทั้งหมด: <strong>{{ '%.2f'|format(order.total_amount) }} บาท</strong></p>
-    {% if order.status == 'paid' %}
-    <p class="success">ออเดอร์นี้ชำระเงินเรียบร้อยแล้ว ขอบคุณที่ใช้บริการ</p>
+<section class="card order-progress-card">
+    <h3>สถานะการเตรียมอาหาร</h3>
+    <div class="status-steps">
+        {% for status_option in STATUS_FLOW %}
+        <div class="status-step {% if loop.index0 <= current_status_index %}active{% endif %}">
+            <span class="step-index">{{ loop.index }}</span>
+            <span class="step-label">{{ status_option }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    <p class="status-hint">ติดตามออเดอร์ของคุณได้แบบเรียลไทม์ หากสถานะถึง "paid" แสดงว่าออเดอร์นี้ปิดการขายเรียบร้อยแล้ว</p>
+</section>
+
+<section class="card order-details-card">
+    <h3>รายละเอียดออเดอร์</h3>
+    <ul class="order-items-list">
+        {% for item in order.items %}
+        <li>
+            <div>
+                <strong>{{ item.menu_item.name }}</strong>
+                <span class="muted-text">{{ item.quantity }} × {{ '%.2f'|format(item.price) }}</span>
+            </div>
+            <div class="item-subtotal">{{ '%.2f'|format(item.subtotal) }} บาท</div>
+        </li>
+        {% endfor %}
+    </ul>
+    <div class="order-total-row">
+        <span>ยอดรวมทั้งหมด</span>
+        <strong>{{ '%.2f'|format(order.total_amount) }} บาท</strong>
+    </div>
+    {% if order.payment_method %}
+    <div class="order-meta-row">
+        <span>วิธีชำระเงิน</span>
+        <span>{{ order.payment_method }}</span>
+    </div>
     {% endif %}
 </section>
 
-<section class="card">
+<section class="card order-actions-card">
     <h3>ต้องการพนักงานช่วยเหลือ?</h3>
     {% if order.requested_assistance %}
-        <p>พนักงานได้รับแจ้งเรียบร้อย โปรดรอสักครู่</p>
+        <p class="assist-note">พนักงานได้รับแจ้งเรียบร้อยแล้ว โปรดรอสักครู่</p>
     {% else %}
         <form method="post" action="{{ url_for('customer_call_staff', code=table.code, order_id=order.id) }}">
             <button type="submit" class="btn primary">กดเรียกพนักงาน</button>
         </form>
     {% endif %}
 </section>
+
+{% if order.status == 'paid' %}
+<section class="card success-card">
+    <h3>ชำระเงินเรียบร้อย</h3>
+    <p>ขอบคุณที่ใช้บริการ หากต้องการสั่งเพิ่มเติมสามารถกลับไปหน้าเมนูได้ทุกเมื่อ</p>
+</section>
+{% endif %}
 {% endblock %}

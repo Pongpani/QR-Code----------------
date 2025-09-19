@@ -1,4 +1,5 @@
 import os
+import re
 from datetime import datetime
 from functools import wraps
 from io import BytesIO
@@ -82,6 +83,13 @@ class OrderItem(db.Model):
 
 
 STATUS_FLOW = ["pending", "preparing", "served", "completed", "paid"]
+
+
+def slugify(value: str) -> str:
+    value = value.strip().lower()
+    value = re.sub(r"\s+", "-", value)
+    value = re.sub(r"[^\w-]", "", value)
+    return value or "section"
 
 
 def create_app() -> Flask:
@@ -413,12 +421,28 @@ def create_app() -> Flask:
     @app.route("/table/<code>", methods=["GET", "POST"])
     def table_view(code):
         table = DiningTable.query.filter_by(code=code.upper()).first_or_404()
-        menu_items = MenuItem.query.filter_by(available=True).order_by(MenuItem.name).all()
+        menu_items = (
+            MenuItem.query.filter_by(available=True)
+            .order_by(MenuItem.category, MenuItem.name)
+            .all()
+        )
+        menu_sections = []
+        fallback_index = 1
+        for item in menu_items:
+            category_name = item.category or "เมนูแนะนำ"
+            if not menu_sections or menu_sections[-1]["name"] != category_name:
+                anchor = slugify(category_name)
+                if anchor == "section":
+                    anchor = f"section-{fallback_index}"
+                    fallback_index += 1
+                menu_sections.append({"name": category_name, "anchor": anchor, "items": []})
+            menu_sections[-1]["items"].append(item)
         active_orders = (
             Order.query.filter(Order.table == table, Order.status != "paid")
             .order_by(Order.created_at.desc())
             .all()
         )
+        latest_order = active_orders[0] if active_orders else None
         if request.method == "POST":
             selected_items = parse_order_items(request.form, menu_items)
             if not selected_items:
@@ -426,8 +450,9 @@ def create_app() -> Flask:
                 return render_template(
                     "customer/table_view.html",
                     table=table,
-                    menu_items=menu_items,
+                    menu_sections=menu_sections,
                     active_orders=active_orders,
+                    latest_order=latest_order,
                 )
             order = Order(table=table, status="pending")
             db.session.add(order)
@@ -446,15 +471,24 @@ def create_app() -> Flask:
         return render_template(
             "customer/table_view.html",
             table=table,
-            menu_items=menu_items,
+            menu_sections=menu_sections,
             active_orders=active_orders,
+            latest_order=latest_order,
         )
 
     @app.route("/table/<code>/orders/<int:order_id>")
     def customer_order_summary(code, order_id):
         table = DiningTable.query.filter_by(code=code.upper()).first_or_404()
         order = Order.query.filter_by(id=order_id, table=table).first_or_404()
-        return render_template("customer/order_summary.html", table=table, order=order)
+        current_status_index = (
+            STATUS_FLOW.index(order.status) if order.status in STATUS_FLOW else -1
+        )
+        return render_template(
+            "customer/order_summary.html",
+            table=table,
+            order=order,
+            current_status_index=current_status_index,
+        )
 
     @app.route("/table/<code>/orders/<int:order_id>/call", methods=["POST"])
     def customer_call_staff(code, order_id):
