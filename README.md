@@ -49,6 +49,39 @@
 
 4. สำหรับลูกค้าให้เปิดลิงก์ `http://localhost:5000/table/T1` (หรือรหัสโต๊ะอื่น ๆ) หรือดาวน์โหลด QR Code จากเมนูผู้ดูแลระบบ
 
+## การใช้งานผ่าน Docker
+
+สำหรับการใช้งานที่สะดวกต่อการ deploy สามารถรันระบบผ่าน Docker ได้ดังนี้
+
+1. สร้าง image
+
+   ```bash
+   docker build -t qr-ordering .
+   ```
+
+2. รันคอนเทนเนอร์ (เปิดพอร์ต 5000 และกำหนดค่า Secret Key)
+
+   ```bash
+   docker run --rm -p 5000:5000 \
+     -e SECRET_KEY="your-production-secret" \
+     --name qr-ordering qr-ordering
+   ```
+
+   จากนั้นเปิดเว็บที่ `http://localhost:5000`
+
+3. (ทางเลือก) หากต้องการเก็บฐานข้อมูลไว้ภายนอกคอนเทนเนอร์ ให้สร้างโฟลเดอร์ `data` แล้วสั่งรันดังนี้
+
+   ```bash
+   mkdir -p data
+   docker run --rm -p 5000:5000 \
+     -e SECRET_KEY="your-production-secret" \
+     -e DATABASE_URL="sqlite:////app/data/restaurant.db" \
+     -v $(pwd)/data:/app/data \
+     --name qr-ordering qr-ordering
+   ```
+
+   ค่าการเชื่อมต่อฐานข้อมูล (`DATABASE_URL`) สามารถเปลี่ยนเป็นระบบอื่นได้ตามต้องการ เช่น PostgreSQL หรือ MySQL
+
 ## โครงสร้างฐานข้อมูลเริ่มต้น
 
 เมื่อรันแอปครั้งแรก ระบบจะสร้างข้อมูลตัวอย่างให้อัตโนมัติ ได้แก่
