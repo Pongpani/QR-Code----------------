@@ -1,39 +1,190 @@
 {% extends 'base.html' %}
 {% block title %}สั่งอาหาร - {{ table.name }}{% endblock %}
+{% block body_class %}app-body customer-view{% endblock %}
 {% block content %}
-<h2>โต๊ะ {{ table.name }} ({{ table.code }})</h2>
-<p>เลือกเมนูที่ต้องการ แล้วกดปุ่มส่งออเดอร์เพื่อแจ้งพนักงาน</p>
-<form method="post" class="customer-menu">
-    <div class="menu-list">
-        {% for item in menu_items %}
-        <div class="menu-card">
-            <div class="menu-info">
-                <h3>{{ item.name }}</h3>
-                <p class="price">{{ '%.2f'|format(item.price) }} บาท</p>
-                {% if item.description %}<p class="description">{{ item.description }}</p>{% endif %}
-            </div>
-            <div class="menu-action">
-                <label>จำนวน</label>
-                <input type="number" min="0" value="0" name="item_{{ item.id }}">
-            </div>
+<section class="customer-hero">
+    <div class="hero-intro">
+        <span class="table-chip">โต๊ะ {{ table.name }} • {{ table.code }}</span>
+        <h2>เลือกเมนูที่ชอบแล้วกดสั่งได้ทันที</h2>
+        <p>เพิ่มรายการลงตะกร้าผ่านมือถือของคุณ และกดยืนยันเพื่อส่งออเดอร์เข้าครัวทันที</p>
+        <div class="hero-actions">
+            <a class="btn primary" href="#menu">เริ่มเลือกเมนู</a>
+            {% if latest_order %}
+            <a class="btn" href="{{ url_for('customer_order_summary', code=table.code, order_id=latest_order.id) }}">ติดตามออเดอร์ล่าสุด</a>
+            {% endif %}
         </div>
-        {% else %}
-        <p>ขณะนี้ยังไม่มีเมนูพร้อมขาย</p>
-        {% endfor %}
     </div>
-    <button class="btn primary" type="submit">ส่งออเดอร์</button>
+    {% if latest_order %}
+    <aside class="hero-card">
+        <div class="hero-card-header">
+            <span class="badge muted">ออเดอร์ล่าสุด</span>
+            <span class="status-pill status-{{ latest_order.status }}">{{ latest_order.status }}</span>
+        </div>
+        <div class="hero-card-body">
+            <p class="order-number">#{{ latest_order.id }}</p>
+            <p class="order-total">{{ '%.2f'|format(latest_order.total_amount) }} บาท</p>
+            <p class="timestamp">{{ latest_order.created_at.strftime('%d/%m/%Y %H:%M') }}</p>
+            <a class="btn small" href="{{ url_for('customer_order_summary', code=table.code, order_id=latest_order.id) }}">ดูรายละเอียด</a>
+        </div>
+    </aside>
+    {% endif %}
+</section>
+
+{% if menu_sections %}
+<nav class="category-nav" aria-label="หมวดหมู่เมนู">
+    {% for section in menu_sections %}
+    <a href="#{{ section.anchor }}" class="category-link">{{ section.name }}</a>
+    {% endfor %}
+</nav>
+{% endif %}
+
+<form method="post" id="order-form" class="customer-order-form">
+    <div class="menu-sections" id="menu">
+        {% if menu_sections %}
+            {% for section in menu_sections %}
+            <section class="menu-section" id="{{ section.anchor }}">
+                <div class="section-header">
+                    <h3>{{ section.name }}</h3>
+                    <p>{{ section['items']|length }} รายการ</p>
+                </div>
+                <div class="menu-grid">
+                    {% for item in section['items'] %}
+                    <article class="menu-tile" data-price="{{ '%.2f'|format(item.price) }}">
+                        <div class="menu-tile-info">
+                            <h4>{{ item.name }}</h4>
+                            {% if item.description %}
+                            <p class="description">{{ item.description }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="menu-tile-footer">
+                            <div class="price">{{ '%.2f'|format(item.price) }} บาท</div>
+                            <div class="quantity-control" data-qty-control>
+                                <button type="button" class="qty-btn" data-action="decrease" aria-label="ลดจำนวนเมนู {{ item.name }}">−</button>
+                                <span class="qty-display" aria-live="polite">0</span>
+                                <button type="button" class="qty-btn" data-action="increase" aria-label="เพิ่มจำนวนเมนู {{ item.name }}">+</button>
+                                <input type="hidden" name="item_{{ item.id }}" value="0" data-qty-input>
+                            </div>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endfor %}
+        {% else %}
+        <div class="empty-state">
+            <h3>ขณะนี้ยังไม่มีเมนูพร้อมขาย</h3>
+            <p>กรุณาลองใหม่อีกครั้ง หรือแจ้งพนักงานเพื่อขอความช่วยเหลือ</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="floating-cart" data-cart hidden>
+        <div class="cart-info">
+            <div class="cart-count"><strong data-cart-count>0</strong> รายการ</div>
+            <div class="cart-total"><span>ยอดรวม</span><strong data-cart-total>0.00</strong> บาท</div>
+        </div>
+        <button type="submit" class="btn primary full">ส่งออเดอร์</button>
+    </div>
 </form>
 
 {% if active_orders %}
-<h3>ออเดอร์ที่ทำรายการไว้</h3>
-<ul class="order-history">
-    {% for order in active_orders %}
-    <li>
-        <strong>ออเดอร์ #{{ order.id }}</strong> - สถานะ: {{ order.status }} - ยอดรวม {{ '%.2f'|format(order.total_amount) }} บาท
-        <a class="btn small" href="{{ url_for('customer_order_summary', code=table.code, order_id=order.id) }}">ดูรายละเอียด</a>
-        {% if order.requested_assistance %}<span class="badge warning">กำลังเรียกพนักงาน</span>{% endif %}
-    </li>
-    {% endfor %}
-</ul>
+<section class="card order-history-card">
+    <h3>ออเดอร์ที่กำลังดำเนินการ</h3>
+    <div class="order-history-grid">
+        {% for order in active_orders %}
+        <article class="order-card {% if order.requested_assistance %}assist{% endif %}">
+            <header>
+                <div>
+                    <span class="order-id">#{{ order.id }}</span>
+                    <span class="status-pill status-{{ order.status }}">{{ order.status }}</span>
+                </div>
+                <div class="order-meta">{{ order.created_at.strftime('%d/%m/%Y %H:%M') }}</div>
+            </header>
+            <p class="order-total">ยอดรวม {{ '%.2f'|format(order.total_amount) }} บาท</p>
+            <a class="btn small" href="{{ url_for('customer_order_summary', code=table.code, order_id=order.id) }}">ดูรายละเอียด</a>
+            {% if order.requested_assistance %}
+            <p class="assist-note">พนักงานได้รับแจ้งแล้ว โปรดรอสักครู่</p>
+            {% endif %}
+        </article>
+        {% endfor %}
+    </div>
+</section>
 {% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+(() => {
+    const orderForm = document.getElementById('order-form');
+    if (!orderForm) {
+        return;
+    }
+    const cart = orderForm.querySelector('[data-cart]');
+    const countEl = orderForm.querySelector('[data-cart-count]');
+    const totalEl = orderForm.querySelector('[data-cart-total]');
+    const controls = orderForm.querySelectorAll('[data-qty-control]');
+
+    const formatCurrency = (value) => value.toLocaleString('th-TH', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+
+    const updateCart = () => {
+        let totalItems = 0;
+        let totalAmount = 0;
+        controls.forEach((control) => {
+            const input = control.querySelector('[data-qty-input]');
+            const display = control.querySelector('.qty-display');
+            const tile = control.closest('.menu-tile');
+            const price = parseFloat((tile && tile.dataset.price) || '0');
+            const qty = parseInt(input.value || '0', 10) || 0;
+            display.textContent = qty;
+            totalItems += qty;
+            totalAmount += qty * price;
+        });
+        if (countEl) {
+            countEl.textContent = totalItems;
+        }
+        if (totalEl) {
+            totalEl.textContent = formatCurrency(totalAmount);
+        }
+        if (cart) {
+            const hasItems = totalItems > 0;
+            cart.hidden = !hasItems;
+            cart.classList.toggle('show', hasItems);
+        }
+    };
+
+    controls.forEach((control) => {
+        control.addEventListener('click', (event) => {
+            const button = event.target.closest('button');
+            if (!button) {
+                return;
+            }
+            const input = control.querySelector('[data-qty-input]');
+            const action = button.dataset.action;
+            let qty = parseInt(input.value || '0', 10) || 0;
+            if (action === 'increase') {
+                qty += 1;
+            } else if (action === 'decrease') {
+                qty = Math.max(0, qty - 1);
+            }
+            input.value = qty;
+            updateCart();
+        });
+    });
+
+    updateCart();
+
+    orderForm.addEventListener('submit', (event) => {
+        const hasSelection = Array.from(orderForm.querySelectorAll('[data-qty-input]'))
+            .some((input) => parseInt(input.value || '0', 10) > 0);
+        if (!hasSelection) {
+            event.preventDefault();
+            orderForm.classList.add('shake');
+            window.setTimeout(() => orderForm.classList.remove('shake'), 450);
+        }
+    });
+})();
+</script>
 {% endblock %}
